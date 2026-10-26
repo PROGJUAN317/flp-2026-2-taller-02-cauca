@@ -35,61 +35,68 @@
 ;;; ==========================================================
 
 #|
-  Aquí van los ejemplos que pide el enunciado: 5 del scanner, 5 del
-  parser y los de ejecución de cada parte, con el resultado de cada uno
-  escrito al lado. Las pruebas con rackunit viven en pruebas-cauca.rkt.
-
-  Scanner
-    (scanner "add1(n)")   => ((literal-string12 "add1" 1)
-                             (literal-string12 "(" 1)
-                             (identificador n 1)
-                             (literal-string12 ")" 1))
-    
-    (scanner "-7")        => ((numero -7 1))
-
-    (scanner "3.5")       => ((numero 3.5 1))
-
-    (scanner "let x = 1 in x end") => ((literal-string12 "let" 1)
-                                      (identificador x 1)
-                                      (literal-string12 "=" 1)
-                                      (numero 1 1)
-                                      (literal-string12 "in" 1)
-                                      (identificador x 1)
-                                      (literal-string12 "end" 1))
-    
-    (scanner "// comentario\n42") =>  ((numero 42 2)
-  
-  Parser
-    (parser "42")    => #(struct:a-program #(struct:lit-exp 42))
-  
-    (parser "true")    => #(struct:a-program #(struct:true-exp))
-
-    (parser "+(1, 2)")    => #(struct:a-program
-                               #(struct:prim-exp #(struct:sum-prim) (#(struct:lit-exp 1) #(struct:lit-exp 2))))
-
-    (parser "if true then 1 else 2 end")    => #(struct:a-program
-                                                 #(struct:if-exp #(struct:true-exp) #(struct:lit-exp 1) #(struct:lit-exp 2)))
-
-    (parser "let x = 1 in x end")    => #(struct:a-program #(struct:let-exp (x) (#(struct:lit-exp 1)) #(struct:var-exp x)))
-  
-  Ejecución del lenguaje base
-    (interpretar "+(1, 2, 3)") => 6
-    (interpretar "-(10, 3, 2)") => 5
-    (interpretar "/(100, 5, 2)") => 10
-    (interpretar "not(true)") => #f
-    (interpretar "and(true, false)") => #f
-    (interpretar "let x = 1 in let x = 2 in x end end") => 2
-    (interpretar "let base = 8 altura = 5 in if and(>(base, 0), >(altura, 0)) then *(base, altura) else 0 end end") => 40
-    (interpretar "if n then 1 else 2 end") => La condición debe ser booleana, se obtuvo 10
-    (interpretar "z") => apply-env: Variable no ligada: z
-    (interpretar "+(1, true)") => Se esperaban números, se recibió (1 #t)
-
   Primitivas nuevas
-    (interpretar "...")   =>
+    (interpretar "abs(-7)")                    => 7
+    (interpretar "abs(5)")                     => 5
+    (interpretar "abs(-2.5)")                  => 2.5
+    (interpretar "abs(true)")                  => error (se esperaban números)
 
-  Procedimientos
-    (interpretar "...")   =>
+    (interpretar "mcd(12, 18)")                => 6
+    (interpretar "mcd(7, 13)")                 => 1
+    (interpretar "mcd(12, 18, 24)")            => 6
+    (interpretar "mcd(1.5, 2)")                => error (se esperaban enteros)
+
+    (interpretar "mcm(4, 6)")                  => 12
+    (interpretar "mcm(2, 3, 4)")               => 12
+    (interpretar "mcm(0, 5)")                  => 0
+    (interpretar "mcm(6)")                     => error (se esperaban al menos 2 argumentos)
+
+    (interpretar "promedio(1, 2, 3, 4)")       => 5/2
+    (interpretar "promedio(10)")               => 10
+    (interpretar "promedio(n, m)")             => 13/2
+    (interpretar "promedio(true)")             => error (se esperaban números)
+
+    (interpretar "xor(true, false)")           => #t
+    (interpretar "xor(true, true)")            => #f
+    (interpretar "xor(false, false)")          => #f
+    (interpretar "xor(1, true)")               => error (se esperaban booleanos)
+
+    (interpretar "implica(true, false)")       => #f
+    (interpretar "implica(false, true)")       => #t
+    (interpretar "implica(true, true)")        => #t
+    (interpretar "implica(1, true)")           => error (se esperaban booleanos)
+
+    (interpretar "entre(5, 1, 10)")            => #t
+    (interpretar "entre(11, 1, 10)")           => #f
+    (interpretar "entre(1, 1, 1)")             => #t
+    (interpretar "entre(1, 2)")                => error (se esperaban 3 argumentos)
 
   Recursión y case
-    (interpretar "...")   =>
+    letrec simple:
+      (interpretar "letrec factorial (k) = if ==(k, 0) then 1
+                      else *(k, apply factorial (sub1(k))) end
+                    in apply factorial (5) end")                    => 120
+    letrec con dos parámetros (el ejemplo de potencia):
+      (interpretar "letrec potencia (base, exp) = if ==(exp, 0) then 1
+                      else *(base, apply potencia (base, sub1(exp))) end
+                    in apply potencia (2, 10) end")                 => 1024
+    letrec mutuamente recursivo:
+      (interpretar "letrec par? (k) = if ==(k, 0) then true
+                      else apply impar? (sub1(k)) end
+                    impar? (k) = if ==(k, 0) then false
+                      else apply par? (sub1(k)) end
+                    in apply par? (10) end")                        => #t
+    letrec con un procedimiento como argumento:
+      (interpretar "letrec aplicarn (f, k, x) = if ==(k, 0) then x
+                      else apply aplicarn (f, sub1(k), apply f (x)) end
+                    in apply aplicarn (proc (v) *(v, 2) end, 3, 1) end")  => 8
+
+    case, rama que coincide:
+      (interpretar "case 3 of 1 => 100 of 3 => 300 of 7 => 700 otherwise => 0 end")  => 300
+    case, rama otherwise:
+      (interpretar "case 5 of 1 => 100 of 3 => 300 otherwise => 0 end")              => 0
+    case, control evaluado una sola vez:
+      (interpretar "case +(1, 2) of 2 => 20 of 3 => 30 otherwise => 0 end")          => 30
+    case, error por control no numérico:
+      (interpretar "case true of 1 => 1 otherwise => 0 end")  => error (el control debe ser un número)
 |#
