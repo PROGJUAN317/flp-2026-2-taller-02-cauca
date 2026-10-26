@@ -1,6 +1,5 @@
 #lang eopl
-;Autores: Juan S. Navarrete 2459562, Nombre2 Codigo2
-
+;Autores: Juan S. Navarrete 2459562, Samuel Garcia Parra 2459476
 ;; Taller 2 — El intérprete de Cauca.
 ;; El TAD ambiente, la búsqueda de ligaduras y el ambiente inicial.
 ;; Requiere sintaxis.rkt y valores.rkt.

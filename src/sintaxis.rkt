@@ -1,5 +1,5 @@
 #lang eopl
-;Autores: Juan S. Navarrete 2459562, Samuel Garcia Parra 202459476
+;Autores: Juan S. Navarrete 2459562, Samuel Garcia Parra 2459476
 
 ;; Taller 2 — El intérprete de Cauca.
 ;; Especificación léxica, especificación gramatical, scanner y parser.

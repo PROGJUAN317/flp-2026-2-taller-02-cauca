@@ -1,5 +1,5 @@
 #lang eopl
-;Autores: Juan S. Navarrete 2459562, Nombre2 Codigo2
+;Autores: Juan S. Navarrete 2459562, Samuel Garcia Parra 2459476
 
 ;; Taller 2 — El intérprete de Cauca.
 ;; El recorrido de la sintaxis abstracta y la aplicación de
@@ -39,6 +39,19 @@
         (let ((primero (evaluar-expresion (car rands) env)))
           (cons primero (evaluar-rands (cdr rands) env))))))
 
+;; seleccionar-rama : numero x lista de numeros x lista de expresiones x
+;;                    expresion x ambiente -> valor
+;; Recorre las ramas de un case en orden. Evalúa la acción de la primera
+;; rama cuyo literal es igual al valor de control; si ninguna coincide,
+;; evalúa la rama otherwise. Solo evalúa una acción.
+(define seleccionar-rama
+  (lambda (valor-control valores acciones default env)
+    (cond
+      ((null? valores) (evaluar-expresion default env))
+      ((= valor-control (car valores)) (evaluar-expresion (car acciones) env))
+      (else (seleccionar-rama valor-control (cdr valores) (cdr acciones)
+                              default env)))))
+
 ;; evaluar-expresion : expresion x ambiente -> valor
 ;; Recorre el árbol de sintaxis abstracta con cases y evalúa cada
 ;; variante según la semántica del enunciado. El if liga el resultado de
@@ -63,6 +76,11 @@
       (let-exp (ids rands body)
         (let ((vals (evaluar-rands rands env)))
           (evaluar-expresion body (ambiente-extendido ids vals env))))
+      (case-exp (control valores acciones default)
+        (let ((valor-control (evaluar-expresion control env)))
+          (if (number? valor-control)
+              (seleccionar-rama valor-control valores acciones default env)
+              (eopl:error 'case-exp "El valor de control debe ser un número, se obtuvo ~s" valor-control))))
       (else (eopl:error 'evaluar-expresion "Expresión no soportada todavía")))))
 
 (provide (all-defined-out))

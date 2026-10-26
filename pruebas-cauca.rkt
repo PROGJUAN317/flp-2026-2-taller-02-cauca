@@ -1,5 +1,5 @@
 #lang eopl
-;Autores: Juan S. Navarrete 2459562, Nombre2 Codigo2
+;Autores: Juan S. Navarrete 2459562, Samuel Garcia Parra 2459476
 
 ;; Taller 2 — El intérprete de Cauca.
 ;; Batería de pruebas con rackunit. Llega escrita en el fork y no se
