@@ -1,5 +1,5 @@
 #lang eopl
-;Autores: Nombre1 Codigo1, Nombre2 Codigo2
+;Autores: Nombre1 Codigo1, Samuel Garcia Parra 202459476
 
 ;; Taller 2 — El intérprete de Cauca.
 ;; Las primitivas del lenguaje y las verificaciones de tipo y de
@@ -12,42 +12,87 @@
 
 (require "sintaxis.rkt")
 
+(define todos?
+  (lambda (pred lst)
+    (or (null? lst) (and (pred (car lst)) (todos? pred (cdr lst))))))
+
 ;; exigir-numeros : lista x symbol -> boolean
 ;; Retorna #t si todos los argumentos son números; si no, levanta
 ;; eopl:error a nombre de quien hizo la verificación.
 (define exigir-numeros
   (lambda (args quien)
-    (eopl:error 'exigir-numeros "Sin implementar")))
+    (if (todos? number? args) #t
+    (eopl:error quien "se necesitaban numeros, no ~s" args))))
 
 ;; exigir-enteros : lista x symbol -> boolean
 ;; Retorna #t si todos los argumentos son enteros; si no, levanta error.
 (define exigir-enteros
   (lambda (args quien)
-    (eopl:error 'exigir-enteros "Sin implementar")))
+    (if (todos? integer? args) #t
+        (eopl:error quien "se necesitaban enteros, llegó ~s" args))))
+
 
 ;; exigir-booleanos : lista x symbol -> boolean
 ;; Retorna #t si todos los argumentos son booleanos; si no, levanta error.
 (define exigir-booleanos
   (lambda (args quien)
-    (eopl:error 'exigir-booleanos "Sin implementar")))
+    (if (todos? boolean? args) #t
+        (eopl:error quien "se necesitaban booleanos, llegó ~s" args))))
 
 ;; exigir-cantidad : lista x int x symbol -> boolean
 ;; Retorna #t si llegaron exactamente n argumentos; si no, levanta error.
 (define exigir-cantidad
   (lambda (args n quien)
-    (eopl:error 'exigir-cantidad "Sin implementar")))
+    (if (= (length args) n) #t
+        (eopl:error quien "se esperaban ~s argumentos, llegaron ~s" n (length args)))))
 
 ;; exigir-minimo : lista x int x symbol -> boolean
 ;; Retorna #t si llegaron al menos n argumentos; si no, levanta error.
 (define exigir-minimo
   (lambda (args n quien)
-    (eopl:error 'exigir-minimo "Sin implementar")))
+    (if (>= (length args) n) #t
+        (eopl:error quien "se esperaban al menos ~s argumentos, llegaron ~s" n (length args)))))
+
+(define calcular-mcd-2
+  (lambda (a b) (if (= b 0) (abs a) (calcular-mcd-2 b (remainder a b)))))
+;; Calcula para 2 numeros, es recursiva
+
+(define calcular-mcd
+  (lambda (args)
+    (if (null? (cdr args)) (abs (car args))
+        (calcular-mcd-2 (car args) (calcular-mcd (cdr args))))))
+;; Si es un solo valor devuelve si valor absoluto, en otro caso combina el primer
+;; elemento con el MCD del resto
+
+(define calcular-mcm-2
+  (lambda (a b)
+    (if (or (= a 0) (= b 0)) 0 (/ (abs (* a b)) (calcular-mcd-2 a b)))))
+;; Cuida el resultado en caso de que sea 0 (dividir entre 0 debe dar 0)
+
+(define calcular-mcm
+  (lambda (args)
+    (if (null? (cdr args)) (abs (car args))
+        (calcular-mcm-2 (car args) (calcular-mcm (cdr args))))))
+;; Igual que mcd, pero con el mcm de los numeros
+
+(define calcular-promedio
+  (lambda (args) (/ (apply + args) (length args))))
+;; Suma los datos y divide entre la cantidad 
 
 ;; evaluar-primitiva : primitiva x lista de valores -> valor
 ;; Verifica la cantidad y el tipo de los argumentos y aplica la
 ;; primitiva. Se resuelve con cases sobre el datatype primitiva.
 (define evaluar-primitiva
   (lambda (prim args)
-    (eopl:error 'evaluar-primitiva "Sin implementar")))
+    (cases primitiva prim
+      (sum-prim ()  ...)      ;Pendiente hasta que Navarrete las agregue
+      ...
+      (abs-prim ()      (primitiva-abs args))       ;En este archivo
+      (mcd-prim ()      (primitiva-mcd args))
+      (mcm-prim ()      (primitiva-mcm args))
+      (promedio-prim () (primitiva-promedio args))
+      (xor-prim ()      (primitiva-xor args))
+      (implica-prim ()  (primitiva-implica args))
+      (entre-prim ()    (primitiva-entre args)))))
 
 (provide (all-defined-out))
