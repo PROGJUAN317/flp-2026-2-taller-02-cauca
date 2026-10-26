@@ -1,5 +1,5 @@
 #lang eopl
-;Autores: Juan S. Navarrete 2459562, Nombre2 Codigo2
+;Autores: Juan S. Navarrete 2459562, Samuel Garcia Parra 202459476
 
 ;; Taller 2 — El intérprete de Cauca.
 ;; Especificación léxica, especificación gramatical, scanner y parser.
@@ -57,7 +57,14 @@
     (primitiva ("==") igual-prim)
     (primitiva ("not") not-prim)
     (primitiva ("and") and-prim)
-    (primitiva ("or") or-prim)))
+    (primitiva ("or") or-prim)
+    (primitiva ("abs") abs-prim)
+    (primitiva ("mcd") mcd-prim)
+    (primitiva ("mcm") mcm-prim)
+    (primitiva ("promedio") promedio-prim)
+    (primitiva ("xor") xor-prim)
+    (primitiva ("implica") implica-prim)
+    (primitiva ("entre") entre-prim)))
 
 (sllgen:make-define-datatypes especificacion-lexica especificacion-gramatical)
 
