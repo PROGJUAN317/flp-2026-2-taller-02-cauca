@@ -19,9 +19,9 @@ parte del grupo.
 
 | Nombre completo | Código | Correo institucional |
 |---|---|---|
-|Juan Sebastian Navarrete Rada|2459562|juan.sebastian.navarrete@correounivalle.edu.co|
+| Juan Sebastian Navarrete Rada | 2459562 | juan.sebastian.navarrete@correounivalle.edu.co |
+| Samuel Garcia Parra | 2459476 | samuel.parra@correounivalle.edu.co |
 
-|Samuel Garcia Parra|2459476|Samuel.parra@correounivalle.edu.co|
 
 ## Cómo se entrega
 
