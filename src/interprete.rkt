@@ -1,5 +1,5 @@
 #lang eopl
-;Autores: Nombre1 Codigo1, Nombre2 Codigo2
+;Autores: Juan S. Navarrete 2459562, Nombre2 Codigo2
 
 ;; Taller 2 — El intérprete de Cauca.
 ;; El recorrido de la sintaxis abstracta y la aplicación de
