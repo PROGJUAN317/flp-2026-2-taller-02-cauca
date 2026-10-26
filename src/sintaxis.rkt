@@ -1,5 +1,5 @@
 #lang eopl
-;Autores: Juan S. Navarrete 2459562, Samuel Garcia Parra 2459476
+;Autores: Juan S. Navarrete 2459562, Samuel Garcia Parra 202459476
 
 ;; Taller 2 — El intérprete de Cauca.
 ;; Especificación léxica, especificación gramatical, scanner y parser.
@@ -23,8 +23,7 @@
 ;;
 ;; La llamada a sllgen:make-define-datatypes genera los datatypes
 ;; programa, expresion y primitiva a partir de la gramática, con sus
-;; constructores y sus predicados. Mientras la gramática esté vacía no
-;; genera ninguno.
+;; constructores y sus predicados.
 
 (define especificacion-lexica
   '((espacio-blanco (whitespace) skip)
@@ -44,8 +43,15 @@
     (expresion (primitiva "(" (separated-list expresion ",") ")") prim-exp)
     (expresion ("if" expresion "then" expresion "else" expresion "end") if-exp)
     (expresion ("let" (arbno identificador "=" expresion) "in" expresion "end") let-exp)
+    ;; Parte 3: procedimientos y aplicación
     (expresion ("proc" "(" (separated-list identificador ",") ")" expresion "end") proc-exp)
     (expresion ("apply" expresion "(" (separated-list expresion ",") ")") app-exp)
+    ;; Parte 4: recursión y selección por valor
+    (expresion ("letrec" (arbno identificador "(" (separated-list identificador ",") ")"
+                                "=" expresion)
+                "in" expresion "end") letrec-exp)
+    (expresion ("case" expresion (arbno "of" numero "=>" expresion)
+                "otherwise" "=>" expresion "end") case-exp)
     (primitiva ("+") sum-prim)
     (primitiva ("-") minus-prim)
     (primitiva ("*") mult-prim)
@@ -60,6 +66,7 @@
     (primitiva ("not") not-prim)
     (primitiva ("and") and-prim)
     (primitiva ("or") or-prim)
+    ;; Parte 2: primitivas nuevas
     (primitiva ("abs") abs-prim)
     (primitiva ("mcd") mcd-prim)
     (primitiva ("mcm") mcm-prim)

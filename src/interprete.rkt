@@ -1,5 +1,5 @@
 #lang eopl
-;Autores: Juan S. Navarrete 2459562, Samuel Garcia Parra 2459476
+;Autores: Juan S. Navarrete 2459562, Samuel Garcia Parra 202459476
 
 ;; Taller 2 — El intérprete de Cauca.
 ;; El recorrido de la sintaxis abstracta y la aplicación de
@@ -82,14 +82,22 @@
       (let-exp (ids rands body)
         (let ((vals (evaluar-rands rands env)))
           (evaluar-expresion body (ambiente-extendido ids vals env))))
+      ;; Parte 3: la clausura guarda el cuerpo sin evaluar y el ambiente actual
       (proc-exp (ids body)
         (cerradura ids body env))
       (app-exp (rator rands)
         (let ((proc (evaluar-expresion rator env)))
           (if (procval? proc)
-              (let ((args (evaluar-rands rands env)))
-                (apply-procedure proc args))
-              (eopl:error 'app-exp "El operador no es un procedimiento: ~s" proc))))
-      (else (eopl:error 'evaluar-expresion "Expresión no soportada todavía")))))
+              (apply-procedure proc (evaluar-rands rands env))
+              (eopl:error 'app-exp "El operador no es un procedimiento, se obtuvo ~s" proc))))
+      ;; Parte 4.1: el cuerpo se evalúa en un ambiente-recursivo
+      (letrec-exp (proc-names idss bodies body)
+        (evaluar-expresion body (ambiente-recursivo proc-names idss bodies env)))
+      ;; Parte 4.2: el control se evalúa una sola vez
+      (case-exp (control valores acciones default)
+        (let ((valor-control (evaluar-expresion control env)))
+          (if (number? valor-control)
+              (seleccionar-rama valor-control valores acciones default env)
+              (eopl:error 'case-exp "El valor de control debe ser un número, se obtuvo ~s" valor-control)))))))
 
 (provide (all-defined-out))
