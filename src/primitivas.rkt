@@ -1,5 +1,5 @@
 #lang eopl
-;Autores: Nombre1 Codigo1, Samuel Garcia Parra 202459476
+;Autores: Nombre1 Codigo1, Nombre2 Codigo2
 
 ;; Taller 2 — El intérprete de Cauca.
 ;; Las primitivas del lenguaje y las verificaciones de tipo y de
