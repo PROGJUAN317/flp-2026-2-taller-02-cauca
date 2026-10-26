@@ -20,7 +20,13 @@
 ;; ligaduras de los parámetros, no en el ambiente de la llamada.
 (define apply-procedure
   (lambda (proc args)
-    (eopl:error 'apply-procedure "Sin implementar")))
+    (cases procval proc
+      (cerradura (ids body env)
+        (if (= (length ids) (length args))
+            (evaluar-expresion body (ambiente-extendido ids args env))
+            (eopl:error 'apply-procedure
+                        "Se esperaban ~s argumentos, llegaron ~s"
+                        (length ids) (length args)))))))
 
 ;; evaluar-programa : programa -> valor
 ;; Punto de entrada: evalúa la expresión del programa en el ambiente
@@ -76,11 +82,14 @@
       (let-exp (ids rands body)
         (let ((vals (evaluar-rands rands env)))
           (evaluar-expresion body (ambiente-extendido ids vals env))))
-      (case-exp (control valores acciones default)
-        (let ((valor-control (evaluar-expresion control env)))
-          (if (number? valor-control)
-              (seleccionar-rama valor-control valores acciones default env)
-              (eopl:error 'case-exp "El valor de control debe ser un número, se obtuvo ~s" valor-control))))
+      (proc-exp (ids body)
+        (cerradura ids body env))
+      (app-exp (rator rands)
+        (let ((proc (evaluar-expresion rator env)))
+          (if (procval? proc)
+              (let ((args (evaluar-rands rands env)))
+                (apply-procedure proc args))
+              (eopl:error 'app-exp "El operador no es un procedimiento: ~s" proc))))
       (else (eopl:error 'evaluar-expresion "Expresión no soportada todavía")))))
 
 (provide (all-defined-out))
