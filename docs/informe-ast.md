@@ -7,7 +7,7 @@ de Programación — Universidad del Valle, Sede Tuluá.
 
 | Nombre | Código | Correo institucional |
 |--------|--------|----------------------|
-| Juan S. Navarrete | 2459562 | COMPLETAR@correounivalle.edu.co |
+| Juan S. Navarrete | 2459562 | juan.sebastian.navarrete@correounivalle.edu.co |
 | Samuel Garcia Parra | 202459476 | samuel.parra@correounivalle.edu.co |
 
 ---
