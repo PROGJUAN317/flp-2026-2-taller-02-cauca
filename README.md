@@ -19,7 +19,7 @@ parte del grupo.
 
 | Nombre completo | Código | Correo institucional |
 |---|---|---|
-| | | |
+|Juan Sebastian Navarrete Rada|2459562|juan.sebastian.navarrete@correounivalle.edu.co|
 | | | |
 | | | |
 | | | |

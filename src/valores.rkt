@@ -1,6 +1,5 @@
 #lang eopl
-;Autores: Nombre1 Codigo1, Nombre2 Codigo2
-
+;Autores: Juan S. Navarrete 2459562, Samuel Garcia Parra 2459476
 ;; Taller 2 — El intérprete de Cauca.
 ;; El valor procedimiento. Requiere sintaxis.rkt.
 ;;
@@ -20,5 +19,11 @@
 ;; campo que queda sin verificar.
 
 (require "sintaxis.rkt")
+
+(define-datatype procval procval?
+  (cerradura
+   (ids (list-of symbol?))
+   (body expresion?)
+   (env (lambda (v) #t))))
 
 (provide (all-defined-out))

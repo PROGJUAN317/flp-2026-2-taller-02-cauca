@@ -1,5 +1,5 @@
 #lang eopl
-;Autores: Nombre1 Codigo1, Nombre2 Codigo2
+;Autores: Juan S. Navarrete 2459562, Samuel Garcia Parra 202459476
 
 ;; Taller 2 — El intérprete de Cauca.
 ;; El recorrido de la sintaxis abstracta y la aplicación de
@@ -20,20 +20,43 @@
 ;; ligaduras de los parámetros, no en el ambiente de la llamada.
 (define apply-procedure
   (lambda (proc args)
-    (eopl:error 'apply-procedure "Sin implementar")))
+    (cases procval proc
+      (cerradura (ids body env)
+        (if (= (length ids) (length args))
+            (evaluar-expresion body (ambiente-extendido ids args env))
+            (eopl:error 'apply-procedure
+                        "Se esperaban ~s argumentos, llegaron ~s"
+                        (length ids) (length args)))))))
 
 ;; evaluar-programa : programa -> valor
 ;; Punto de entrada: evalúa la expresión del programa en el ambiente
 ;; inicial.
 (define evaluar-programa
   (lambda (pgm)
-    (eopl:error 'evaluar-programa "Sin implementar")))
+    (cases programa pgm
+      (a-program (exp) (evaluar-expresion exp (ambiente-inicial))))))
 
 ;; evaluar-rands : lista de expresiones x ambiente -> lista de valores
 ;; Evalúa las expresiones de izquierda a derecha en el mismo ambiente.
 (define evaluar-rands
   (lambda (rands env)
-    (eopl:error 'evaluar-rands "Sin implementar")))
+    (if (null? rands)
+        '()
+        (let ((primero (evaluar-expresion (car rands) env)))
+          (cons primero (evaluar-rands (cdr rands) env))))))
+
+;; seleccionar-rama : numero x lista de numeros x lista de expresiones x
+;;                    expresion x ambiente -> valor
+;; Recorre las ramas de un case en orden. Evalúa la acción de la primera
+;; rama cuyo literal es igual al valor de control; si ninguna coincide,
+;; evalúa la rama otherwise. Solo evalúa una acción.
+(define seleccionar-rama
+  (lambda (valor-control valores acciones default env)
+    (cond
+      ((null? valores) (evaluar-expresion default env))
+      ((= valor-control (car valores)) (evaluar-expresion (car acciones) env))
+      (else (seleccionar-rama valor-control (cdr valores) (cdr acciones)
+                              default env)))))
 
 ;; evaluar-expresion : expresion x ambiente -> valor
 ;; Recorre el árbol de sintaxis abstracta con cases y evalúa cada
@@ -42,6 +65,39 @@
 ;; ramifica; el case evalúa la expresión de control una sola vez.
 (define evaluar-expresion
   (lambda (exp env)
-    (eopl:error 'evaluar-expresion "Sin implementar")))
+    (cases expresion exp
+      (lit-exp (dato) dato)
+      (var-exp (id) (apply-env env id))
+      (true-exp () #t)
+      (false-exp () #f)
+      (prim-exp (prim rands)
+        (evaluar-primitiva prim (evaluar-rands rands env)))
+      (if-exp (test exp-si exp-no)
+        (let ((test-value (evaluar-expresion test env)))
+          (if (boolean? test-value)
+              (if test-value
+                  (evaluar-expresion exp-si env)
+                  (evaluar-expresion exp-no env))
+              (eopl:error 'if-exp "La condición debe ser booleana, se obtuvo ~s" test-value))))
+      (let-exp (ids rands body)
+        (let ((vals (evaluar-rands rands env)))
+          (evaluar-expresion body (ambiente-extendido ids vals env))))
+      ;; Parte 3: la clausura guarda el cuerpo sin evaluar y el ambiente actual
+      (proc-exp (ids body)
+        (cerradura ids body env))
+      (app-exp (rator rands)
+        (let ((proc (evaluar-expresion rator env)))
+          (if (procval? proc)
+              (apply-procedure proc (evaluar-rands rands env))
+              (eopl:error 'app-exp "El operador no es un procedimiento, se obtuvo ~s" proc))))
+      ;; Parte 4.1: el cuerpo se evalúa en un ambiente-recursivo
+      (letrec-exp (proc-names idss bodies body)
+        (evaluar-expresion body (ambiente-recursivo proc-names idss bodies env)))
+      ;; Parte 4.2: el control se evalúa una sola vez
+      (case-exp (control valores acciones default)
+        (let ((valor-control (evaluar-expresion control env)))
+          (if (number? valor-control)
+              (seleccionar-rama valor-control valores acciones default env)
+              (eopl:error 'case-exp "El valor de control debe ser un número, se obtuvo ~s" valor-control)))))))
 
 (provide (all-defined-out))
