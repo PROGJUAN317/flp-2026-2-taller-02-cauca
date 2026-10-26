@@ -19,12 +19,6 @@
 ;; que se requieran entre sí, levanta cycle in loading. Es el único
 ;; campo que queda sin verificar.
 
-(define-datatype procval procval?
-  (cerradura
-   (ids (list-of symbol?))
-   (body expresion?)
-   (env (lambda (v) #t))))
-
 (require "sintaxis.rkt")
 
 (provide (all-defined-out))

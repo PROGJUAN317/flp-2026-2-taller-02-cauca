@@ -79,9 +79,6 @@
            (exigir-booleanos args quien)
            (f (car args) (cadr args)))))
 
-    (if (>= (length args) n) #t
-        (eopl:error quien "se esperaban al menos ~s argumentos, llegaron ~s" n (length args)))))
-
 (define calcular-mcd-2
   (lambda (a b) (if (= b 0) (abs a) (calcular-mcd-2 b (remainder a b)))))
 ;; Calcula para 2 numeros, es recursiva
@@ -106,7 +103,64 @@
 
 (define calcular-promedio
   (lambda (args) (/ (apply + args) (length args))))
-;; Suma los datos y divide entre la cantidad 
+;; Suma los datos y divide entre la cantidad
+
+;; primitiva-abs : lista -> numero
+;; Valor absouluto de un unico arg numerico
+(define primitiva-abs
+  (lambda (args)
+    (begin (exigir-cantidad args 1 'abs)
+           (exigir-numeros args 'abs)
+           (abs (car args)))))
+
+;; primitiva-mcd : lista -> entero
+;; Máximo común divisor de 1 o más enteros.
+(define primitiva-mcd
+  (lambda (args)
+    (begin (exigir-minimo args 2 'mcd)
+           (exigir-enteros args 'mcd)
+           (calcular-mcd args))))
+
+;; primitiva-mcm : lista -> entero
+;; Mínimo común múltiplo de mas de 2 enteros.
+(define primitiva-mcm
+  (lambda (args)
+    (begin (exigir-minimo args 2 'mcm)
+           (exigir-enteros args 'mcm)
+           (calcular-mcm args))))
+
+;; primitiva-promedio : lista -> número
+;; Media aritmética de uno o más números.
+(define primitiva-promedio
+  (lambda (args)
+    (begin (exigir-minimo args 1 'promedio)
+           (exigir-numeros args 'promedio)
+           (calcular-promedio args))))
+
+;; primitiva-xor : lista -> booleano
+;; Verdadero cuando exactamente uno de los dos booleanos lo es.
+(define primitiva-xor
+  (lambda (args)
+    (begin (exigir-cantidad args 2 'xor)
+           (exigir-booleanos args 'xor)
+           (not (eq? (car args) (cadr args))))))
+
+;; primitiva-implica : lista -> booleano
+;; Falso únicamente cuando el primero es verdadero y el segundo falso.
+(define primitiva-implica
+  (lambda (args)
+    (begin (exigir-cantidad args 2 'implica)
+           (exigir-booleanos args 'implica)
+           (or (not (car args)) (cadr args)))))
+
+;; primitiva-entre : lista -> booleano
+;; Con args = (x a b), verdadero cuando a <= x <= b.
+(define primitiva-entre
+  (lambda (args)
+    (begin (exigir-cantidad args 3 'entre)
+           (exigir-numeros args 'entre)
+           (and (<= (cadr args) (car args))
+                (<= (car args) (caddr args))))))
 
 ;; evaluar-primitiva : primitiva x lista de valores -> valor
 ;; Verifica la cantidad y el tipo de los argumentos y aplica la
@@ -114,6 +168,7 @@
 (define evaluar-primitiva
   (lambda (prim args)
     (cases primitiva prim
+      ;; Primitivas base
       (sum-prim () (aritmetica-nria '+ + args))
       (minus-prim () (aritmetica-nria '- - args))
       (mult-prim () (aritmetica-nria '* * args))
@@ -143,16 +198,12 @@
                (not (car args))))
       (and-prim () (logica-binaria 'and (lambda (a b) (and a b)) args))
       (or-prim () (logica-binaria 'or (lambda (a b) (or a b)) args))
-      (else (eopl:error 'evaluar-primitiva "Primitiva no soportada todavía")))))
-    (cases primitiva prim
-      (sum-prim ()  ...)      ;Pendiente hasta que Navarrete las agregue
-      ...
-      (abs-prim ()      (primitiva-abs args))       ;En este archivo
-      (mcd-prim ()      (primitiva-mcd args))
-      (mcm-prim ()      (primitiva-mcm args))
+      ;; Primitivas nuevas (Parte 2)
+      (abs-prim () (primitiva-abs args))
+      (mcd-prim () (primitiva-mcd args))
+      (mcm-prim () (primitiva-mcm args))
       (promedio-prim () (primitiva-promedio args))
-      (xor-prim ()      (primitiva-xor args))
-      (implica-prim ()  (primitiva-implica args))
-      (entre-prim ()    (primitiva-entre args)))))
-
+      (xor-prim () (primitiva-xor args))
+      (implica-prim () (primitiva-implica args))
+      (entre-prim () (primitiva-entre args)))))
    (provide (all-defined-out))
